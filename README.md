@@ -117,6 +117,8 @@ tigergraph-operator-controller-manager-metrics-service   ClusterIP      172.30.2
 tigergraph-operator-webhook-service                      ClusterIP      172.30.194.175   <none>                                                                    443/TCP           10m
 ```
 
+Create the routes:
+
 ```shell
 oc apply -f tigergraph-ui-route.yaml -n tigergraph
 oc apply -f tigergraph-rest-route.yaml -n tigergraph
