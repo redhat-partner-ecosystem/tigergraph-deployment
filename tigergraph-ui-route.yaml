@@ -1,0 +1,15 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tigergraph-ui
+  namespace: tigergraph
+spec:
+  to:
+    kind: Service
+    name: test-tigergraph-cluster-gui-external-service
+    weight: 100
+  port:
+    targetPort: graphstudio
+  tls:
+    termination: edge
+  wildcardPolicy: None

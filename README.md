@@ -28,7 +28,6 @@ kubectl wait deployment -n openshift-operators cert-manager-webhook --for condit
 ```
 
 
-
 ### Install TigerGraph Operator with Kubectl Plugin
 
 ```shell
@@ -43,6 +42,7 @@ Wait for operator to be deployed:
 kubectl wait deployment tigergraph-operator-controller-manager --for condition=Available=True --timeout=90s --namespace tigergraph
 ```
 
+
 ### Remove the default Limit Range
 
 Get the name of the default limit range, if defined:
@@ -50,6 +50,8 @@ Get the name of the default limit range, if defined:
 ```shell
 oc get limitranges
 ```
+
+Gives something like this:
 
 ```shell
 NAME                              CREATED AT
@@ -63,11 +65,13 @@ oc delete limitrange tigergraph-core-resource-limits
 ```
 
 
-### Query the storageclass from K8S cluster
+### Query the storageclass from the OpenShift cluster
 
 ```shell
 kubectl get storageclass
 ```
+
+Gives something like this:
 
 ```shell
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
@@ -76,17 +80,22 @@ gp2-csi         ebs.csi.aws.com         Delete          WaitForFirstConsumer   t
 gp3-csi         ebs.csi.aws.com         Delete          WaitForFirstConsumer   true                   8h
 ```
 
+
 ### Deploy Tigergraph cluster
 
 ```shell
-kubectl tg create --namespace tigergraph --cluster-name test-tigergraph-cluster --size 6 --ha 2 --storage-class gp2 --storage-size 50G --cpu 4000m --memory 8Gi
+kubectl tg create --namespace tigergraph --cluster-name test-tigergraph-cluster --size 1 --ha 1 --storage-class gp2 --storage-size 50G --cpu 4000m --memory 16Gi
 ```
 
-Check the initialization of Tigergraph cluster
+**Note:** There is an issue with the UI service and the HA setup which is why the above command only creates a single node cluster ! see [Quickstart with EKS](https://docs.tigergraph.com/tigergraph-server/3.7/kubernetes/quickstart-with-eks) for more details.
+
+
+### Check the initialization of Tigergraph cluster
 
 ```shell
 kubectl wait --for=condition=complete --timeout=600s job/test-tigergraph-cluster-init-job --namespace tigergraph
 ```
+
 
 ### Create the route
 
@@ -95,6 +104,9 @@ Query the available services:
 ```shell
 oc get services
 ```
+
+Gives something like this:
+
 
 ```shell
 NAME                                                     TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)           AGE
@@ -105,17 +117,25 @@ tigergraph-operator-controller-manager-metrics-service   ClusterIP      172.30.2
 tigergraph-operator-webhook-service                      ClusterIP      172.30.194.175   <none>                                                                    443/TCP           10m
 ```
 
+```shell
+oc apply -f tigergraph-ui-route.yaml -n tigergraph
+oc apply -f tigergraph-rest-route.yaml -n tigergraph
+```
+
+
 ### Checking Cluster Status
 
 ```shell
 kubectl tg status --cluster-name test-tigergraph-cluster --namespace tigergraph
 ```
 
+
 ### Delete Clusters
 
 ```shell
 kubectl tg delete --cluster-name test-tigergraph-cluster
 ```
+
 
 ### Uninstall TigerGraph Operator
 
